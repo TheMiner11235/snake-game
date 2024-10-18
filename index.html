@@ -71,7 +71,7 @@
         #leaderboard-container {
             position: absolute; /* Set to absolute positioning */
             top: 80px; /* Adjust this value to fit below the game title */
-            left: 10px; /* Set the left position */
+            left: 20px; /* Set the left position */
             color: lime;
             font-family: 'Courier New', Courier, monospace;
             display: flex;
@@ -97,24 +97,17 @@
             right: 20px;
         }
 
-        /* Snake speed and name positioning */
-        #snakeInfo {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            margin: 0;
-        }
-
+        /* Snake length display */
         #snakeLengthDisplay {
             position: absolute;
-            top: 20px; /* Position in upper left */
-            left: 20px; /* Position in upper left */
+            top: 10px; /* Position in upper left */
+            left: 10px; /* Position in upper left */
             margin: 0;
         }
         
         #playerName {
             padding: 10px;
-            font-size: 15pt;
+            font-size: 12pt;
             background-color: black;
             color: lime;
             border: 2px solid lime;
@@ -125,7 +118,7 @@
     </style>
 </head>
 <body>
-    <h1 id="gameTitle"><a href="https://github.com/TheMiner11235/GPT-Snake-Ai" target="_blank">Snake Game</a></h1>
+    <h1 id="gameTitle"><a href="https://github.com/TheMiner11235/snake-game" target="_blank">Snake Game</a></h1>
 
     <div id="highScore">
         High Score: <span id="highScoreDisplay">No high score yet</span>
@@ -143,10 +136,6 @@
     <canvas id="gameCanvas"></canvas>
     <button id="resetButton" class="hidden">Reset</button>
 
-    <div id="snakeInfo">
-        Snake Speed: <input type="text" id="snakeSpeedInput" placeholder="Enter Speed (max 1000)" />
-    </div>
-
     <div id="leaderboard-container">
         <h2>Leaderboard - Top 20</h2>
         <ul id="leaderboard">
@@ -154,44 +143,21 @@
         </ul>
     </div>
 
-    <!-- Score Input Section -->
-    <div id="scoreInputContainer">
-        <h3>Submit Your Score:</h3>
-        <input type="text" id="scoreInput" placeholder="Enter your score" />
-        <button id="submitScore">Submit</button>
-    </div>
-
     <script src="game.js"></script>
     
     <script>
-        function resizeSpeedInput() {
-            const speedInput = document.getElementById("snakeSpeedInput");
-            const valueLength = speedInput.value.length;
-
-            // Set the width based on the length of the value
-            speedInput.style.width = `${Math.max(100, valueLength * 10)}px`;
-        }
-
-        // Add event listener for input change
-        document.getElementById("snakeSpeedInput").addEventListener("input", resizeSpeedInput);
-
-        // Call resizeSpeedInput on page load to set initial size
-        document.addEventListener("DOMContentLoaded", resizeSpeedInput);
-
         // Event listener for submitting score
         document.getElementById("submitScore").addEventListener("click", function() {
             const playerName = document.getElementById("playerName").value;
-            const scoreInput = document.getElementById("scoreInput").value;
-            const score = parseInt(scoreInput);
 
             // Submit score to the server
-            if (playerName && !isNaN(score)) {
+            if (playerName) {
                 fetch("/submit-score", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ name: playerName, score }),
+                    body: JSON.stringify({ name: playerName }),
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -202,7 +168,7 @@
                     console.error("Error submitting score:", error);
                 });
             } else {
-                alert("Please enter a valid name and score.");
+                alert("Please enter a valid name.");
             }
         });
 
