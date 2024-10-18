@@ -290,8 +290,8 @@ function renderGame() {
     ctx.fillRect(apple.x, apple.y, box, box); // Draw the apple
 
     // Draw the score
-    ctx.fillStyle = "black"; // Set score color
-    ctx.font = "20px Arial"; // Set font style
+    ctx.fillStyle = "green"; // Set score color
+    ctx.font = "12px courier new"; // Set font style
     ctx.fillText("Score: " + snakeLength, 10, 30); // Display score on the canvas
 }
 
