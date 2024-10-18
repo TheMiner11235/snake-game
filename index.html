@@ -146,10 +146,6 @@
     <script src="game.js"></script>
     
     <script>
-        // Event listener for submitting score
-        document.getElementById("submitScore").addEventListener("click", function() {
-            const playerName = document.getElementById("playerName").value;
-
             // Submit score to the server
             if (playerName) {
                 fetch("/submit-score", {
