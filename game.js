@@ -31,10 +31,17 @@ let apple = {
 
 // Function to reset the apple position randomly within the defined canvas
 function resetApplePosition() {
-    apple = {
-        x: Math.floor(Math.random() * (canvas.width / box)) * box,
-        y: Math.floor(Math.random() * (maxHeight / box)) * box // Use maxHeight here
-    };
+    let appleOnSnake = true;
+
+    while (appleOnSnake) {
+        apple = {
+            x: Math.floor(Math.random() * (canvas.width / box)) * box,
+            y: Math.floor(Math.random() * (maxHeight / box)) * box
+        };
+
+        // Check if the new apple position is on the snake
+        appleOnSnake = snake.some(segment => segment.x === apple.x && segment.y === apple.y);
+    }
 }
 
 // Resize the canvas to fit the window while maintaining aspect ratio
@@ -214,30 +221,58 @@ function findPath() {
     return null; // Return null if no path is found
 }
 
+// Add event listener for the AI toggle switch
+document.getElementById("aiToggle").addEventListener("change", (event) => {
+    playerControlled = !event.target.checked; // Set playerControlled based on toggle state
+});
+
+// Inside startGame function, replace the AI logic check with:
+if (!playerControlled) {
+    const path = findPath(); // Find the path to the apple
+    if (path && path.length > 1) {
+        const nextNode = path[1]; // Get the next move from the path
+
+        // Set direction based on the next move
+        if (nextNode.x < snake[0].x) direction = "LEFT";
+        if (nextNode.x > snake[0].x) direction = "RIGHT";
+        if (nextNode.y < snake[0].y) direction = "UP";
+        if (nextNode.y > snake[0].y) direction = "DOWN";
+    }
+}
+
 // Update snake position based on current direction
 function updateSnakePosition() {
     const head = { x: snake[0].x, y: snake[0].y }; // Create a new head based on the current head position
 
-    // Move the head based on direction
+    // Update the head position based on the current direction
     if (direction === "LEFT") head.x -= box; // Move left
     if (direction === "RIGHT") head.x += box; // Move right
     if (direction === "UP") head.y -= box; // Move up
     if (direction === "DOWN") head.y += box; // Move down
 
+    // Check if the snake goes off-screen horizontally
+    if (head.x < 0) head.x = canvas.width - box; // Wrap around to the right
+    if (head.x >= canvas.width) head.x = 0; // Wrap around to the left
+
+    // Check if the snake goes off-screen vertically
+    if (head.y < 0) head.y = 0; // Prevent going above the canvas
+    if (head.y >= maxHeight) head.y = maxHeight - box; // Prevent going below the maximum height
+
+    // Add new head to the snake
+    snake.unshift(head); // Add new head to the front of the snake
+
     // Check if the snake has eaten the apple
     if (head.x === apple.x && head.y === apple.y) {
-        snakeLength = Math.min(snakeLength + 1, maxSnakeLength); // Increment snake length with cap
-        resetApplePosition(); // Reset apple position
-        // Submit score if the new length is greater than last submitted score
-        if (snakeLength > lastSubmittedScore) {
-            submitScore(snakeLength); // Submit score to server
-            lastSubmittedScore = snakeLength; // Update last submitted score
-        }
+        snakeLength++; // Increase snake length
+        resetApplePosition(); // Reset apple position after eating
     } else {
         snake.pop(); // Remove the last segment of the snake if not eating
     }
 
-    snake.unshift(head); // Add new head to the snake
+    // Limit snake length to max length
+    if (snakeLength > maxSnakeLength) {
+        snakeLength = maxSnakeLength; // Cap the snake length
+    }
 }
 
 // Render the game visuals
@@ -255,8 +290,8 @@ function renderGame() {
     ctx.fillRect(apple.x, apple.y, box, box); // Draw the apple
 
     // Draw the score
-    ctx.fillStyle = "green"; // Set score color
-    ctx.font = "20px courier new"; // Set font style
+    ctx.fillStyle = "black"; // Set score color
+    ctx.font = "20px Arial"; // Set font style
     ctx.fillText("Score: " + snakeLength, 10, 30); // Display score on the canvas
 }
 
