@@ -16,6 +16,7 @@ let snakeSpeed = 15; // Adjust this value to control the game speed (reduce to s
 let timeSinceLastMove = 0; // Time tracker for snake movement
 
 // Snake and Apple Configuration
+let direction = "RIGHT";
 let snake = [{ x: 178, y: 172 }]; // Initial position of the snake
 let snakeLength = 1; // Initialize snake length counter
 
