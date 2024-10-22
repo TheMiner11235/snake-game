@@ -12,7 +12,7 @@ const box = 20; // Size of each snake segment
 const maxSnakeLength = Math.floor((baseWidth * baseHeight) / (box * box));
 
 // New maximum height for the apple and snake
-const maxHeight = 500; // Maximum height for apple and snake
+const maxHeight = 1200; // Maximum height for apple and snake
 
 let frameRate = 60; // Set the game to run at 60 frames per second
 let snakeSpeed = 20; // Adjust this value to control the game speed (reduce to slow down)
@@ -175,7 +175,7 @@ function renderGame() {
 
     // Draw the snake
     for (let i = 0; i < snake.length; i++) {
-        ctx.fillStyle = "green"; // Set snake color
+        ctx.fillStyle = "lime"; // Set snake color
         ctx.fillRect(snake[i].x, snake[i].y, box, box); // Draw each segment
     }
 
@@ -184,7 +184,7 @@ function renderGame() {
     ctx.fillRect(apple.x, apple.y, box, box); // Draw the apple
 
     // Draw the score
-    ctx.fillStyle = "green"; // Set score color
+    ctx.fillStyle = "lime"; // Set score color
     ctx.font = "bold 20px courier new"; // Set font style
     ctx.fillText("Score: " + snakeLength, 10, 30); // Display score on the canvas
 }
