@@ -124,12 +124,8 @@ function updateSnakePosition() {
 
 // Render the game
 function renderGame() {
-    // Draw dark green grid background
-    ctx.fillStyle = "#004400"; // Dark green background color
-    ctx.fillRect(0, 0, canvasSize, canvasSize); // Fill the entire canvas
-
     // Draw grid lines
-    ctx.strokeStyle = "#006600"; // Slightly lighter green for grid lines
+    ctx.strokeStyle = "#004400"; // Slightly lighter green for grid lines
     for (let x = 0; x <= canvasSize; x += box) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
