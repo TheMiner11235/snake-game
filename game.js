@@ -15,12 +15,11 @@ const maxSnakeLength = Math.floor((baseWidth * baseHeight) / (box * box));
 const maxHeight = 1200; // Maximum height for apple and snake
 
 let frameRate = 60; // Set the game to run at 60 frames per second
-let snakeSpeed = 20; // Adjust this value to control the game speed (reduce to slow down)
+let snakeSpeed = 15; // Adjust this value to control the game speed (reduce to slow down)
 let timeSinceLastMove = 0; // Time tracker for snake movement
 
 // Snake and Apple Configuration
-let direction = "RIGHT"; // Initial direction of the snake
-let snake = [{ x: 200, y: 200 }]; // Initial position of the snake
+let snake = [{ x: 178, y: 172 }]; // Initial position of the snake
 let snakeLength = 1; // Initialize snake length counter
 
 // Apple configuration
@@ -75,9 +74,7 @@ document.getElementById("startGame").addEventListener("click", () => {
 });
 
 // Control variable for player input
-let playerControlled = false; // Variable to track if the player is controlling the snake
 let lastSubmittedScore = 0; // Track the last submitted score
-
 let directionSet = false; // Track if the player has set a direction
 
 // Function to initialize and start the game
