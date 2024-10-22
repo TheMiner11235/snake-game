@@ -6,8 +6,8 @@ const canvasSize = 1000;
 canvas.width = canvasSize;
 canvas.height = canvasSize;
 
-// Snake segment size
-const box = 20; // Size of each snake segment
+// Snake segment size (each grid square size)
+const box = 20; // Size of each snake segment (20x20)
 
 // Calculate maximum snake length based on canvas size
 const maxSnakeLength = Math.floor((canvasSize * canvasSize) / (box * box));
@@ -18,7 +18,7 @@ let timeSinceLastMove = 0; // Time tracker for snake movement
 
 // Snake and Apple Configuration
 let direction = "RIGHT";
-let snake = [{ x: 178, y: 172 }];
+let snake = [{ x: 0, y: 0 }];
 let snakeLength = 1;
 
 // Apple configuration
@@ -124,7 +124,24 @@ function updateSnakePosition() {
 
 // Render the game
 function renderGame() {
-    ctx.clearRect(0, 0, canvasSize, canvasSize); // Clear canvas
+    // Draw dark green grid background
+    ctx.fillStyle = "#004400"; // Dark green background color
+    ctx.fillRect(0, 0, canvasSize, canvasSize); // Fill the entire canvas
+
+    // Draw grid lines
+    ctx.strokeStyle = "#006600"; // Slightly lighter green for grid lines
+    for (let x = 0; x <= canvasSize; x += box) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvasSize);
+        ctx.stroke();
+    }
+    for (let y = 0; y <= canvasSize; y += box) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvasSize, y);
+        ctx.stroke();
+    }
 
     // Draw snake
     for (let i = 0; i < snake.length; i++) {
