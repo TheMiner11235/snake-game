@@ -78,6 +78,8 @@ document.getElementById("startGame").addEventListener("click", () => {
 let playerControlled = false; // Variable to track if the player is controlling the snake
 let lastSubmittedScore = 0; // Track the last submitted score
 
+let directionSet = false; // Track if the player has set a direction
+
 // Function to initialize and start the game
 function startGame() {
     // Hide the title when the game starts
@@ -90,188 +92,80 @@ function startGame() {
         timeSinceLastMove += interval; // Increment the time since the last snake movement
 
         if (timeSinceLastMove >= 1000 / snakeSpeed) {
-            // Update snake position based on player control or AI logic
-            if (!playerControlled) {
-                const path = findPath(); // Find the path to the apple
-                if (path && path.length > 1) {
-                    const nextNode = path[1]; // Get the next move from the path
-
-                    // Set direction based on the next move
-                    if (nextNode.x < snake[0].x) direction = "LEFT";
-                    if (nextNode.x > snake[0].x) direction = "RIGHT";
-                    if (nextNode.y < snake[0].y) direction = "UP";
-                    if (nextNode.y > snake[0].y) direction = "DOWN";
-                }
+            if (directionSet) { // Only move the snake if the player has set a direction
+                updateSnakePosition(); // Update the snake's position
             }
-
-            updateSnakePosition(); // Update the snake's position
-            timeSinceLastMove = 0; // Reset the time since the last movement
+            renderGame(); // Render the game visuals
+            timeSinceLastMove = 0; // Reset the time since last movement
         }
-
-        renderGame(); // Render the game visuals
     }, interval);
 }
 
-// A* node class for pathfinding
-class Node {
-    constructor(x, y, g, h) {
-        this.x = x; // X-coordinate of the node
-        this.y = y; // Y-coordinate of the node
-        this.g = g; // Cost from the start node
-        this.h = h; // Heuristic distance to the apple
-        this.f = g + h; // Total cost
-        this.parent = null; // Pointer to the parent node
+// Handle key presses for snake control (WASD)
+document.addEventListener("keydown", (event) => {
+    if (event.key === "w" && direction !== "DOWN") {
+        direction = "UP";
+        directionSet = true; // Mark that a direction has been set
     }
-}
-
-// Manhattan distance heuristic for pathfinding
-function heuristic(a, b) {
-    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
-}
-
-// Check if two nodes are equal
-function nodesAreEqual(a, b) {
-    return a.x === b.x && a.y === b.y;
-}
-
-// Get neighboring nodes for the current node
-function getNeighbors(node) {
-    const neighbors = [];
-    const directions = [
-        { x: -box, y: 0 }, // Left
-        { x: box, y: 0 },  // Right
-        { x: 0, y: -box }, // Up
-        { x: 0, y: box },  // Down
-    ];
-
-    directions.forEach((dir) => {
-        const newX = node.x + dir.x;
-        const newY = node.y + dir.y;
-
-        // Ensure the new position is within the grid and doesn't hit the snake
-        if (newX >= 0 && newX < canvas.width && newY >= 0 && newY < maxHeight && !snakeCollision(newX, newY)) {
-            neighbors.push(new Node(newX, newY, 0, 0)); // Add valid neighbor nodes
-        }
-    });
-
-    return neighbors; // Return the list of neighboring nodes
-}
+    if (event.key === "s" && direction !== "UP") {
+        direction = "DOWN";
+        directionSet = true; // Mark that a direction has been set
+    }
+    if (event.key === "a" && direction !== "RIGHT") {
+        direction = "LEFT";
+        directionSet = true; // Mark that a direction has been set
+    }
+    if (event.key === "d" && direction !== "LEFT") {
+        direction = "RIGHT";
+        directionSet = true; // Mark that a direction has been set
+    }
+});
 
 // Check if the position collides with the snake body
 function snakeCollision(x, y) {
     return snake.some(segment => segment.x === x && segment.y === y); // Check for collision
 }
 
-// A* Pathfinding function to find the path to the apple
-function findPath() {
-    const start = new Node(snake[0].x, snake[0].y, 0, heuristic(snake[0], apple)); // Starting node
-    const end = new Node(apple.x, apple.y, 0, 0); // End node (apple's position)
-    const openList = [start]; // Nodes to be evaluated
-    const closedList = []; // Nodes already evaluated
-
-    while (openList.length > 0) {
-        let lowestIndex = 0; // Initialize lowest index for pathfinding
-        for (let i = 1; i < openList.length; i++) {
-            if (openList[i].f < openList[lowestIndex].f) {
-                lowestIndex = i; // Find the node with the lowest cost
-            }
-        }
-
-        const currentNode = openList[lowestIndex]; // Get the current node with the lowest cost
-
-        // If we reached the goal (the apple), backtrack to find the path
-        if (nodesAreEqual(currentNode, end)) {
-            const path = [];
-            let temp = currentNode;
-            while (temp) {
-                path.push(temp); // Build the path by following parent nodes
-                temp = temp.parent; // Move to the parent node
-            }
-            return path.reverse(); // Return the path from start to end
-        }
-
-        // Move current node from open to closed list
-        openList.splice(lowestIndex, 1); // Remove current node from open list
-        closedList.push(currentNode); // Add current node to closed list
-
-        // Get neighbors and evaluate them
-        const neighbors = getNeighbors(currentNode);
-        for (const neighbor of neighbors) {
-            if (closedList.some((closedNode) => nodesAreEqual(closedNode, neighbor))) {
-                continue; // Skip if already evaluated
-            }
-
-            const tentativeG = currentNode.g + 1; // Calculate tentative G cost
-            const existingOpenNode = openList.find((openNode) => nodesAreEqual(openNode, neighbor)); // Check if neighbor is in open list
-
-            if (!existingOpenNode || tentativeG < neighbor.g) {
-                neighbor.g = tentativeG; // Update G cost for neighbor
-                neighbor.h = heuristic(neighbor, end); // Update heuristic distance to end
-                neighbor.f = neighbor.g + neighbor.h; // Update total cost
-                neighbor.parent = currentNode; // Set the parent for the neighbor
-
-                // If it's not in the open list, add it
-                if (!existingOpenNode) {
-                    openList.push(neighbor); // Add neighbor to open list
-                }
-            }
-        }
-    }
-
-    return null; // Return null if no path is found
-}
-
-// Add event listener for the AI toggle switch
-document.getElementById("aiToggle").addEventListener("change", (event) => {
-    playerControlled = !event.target.checked; // Set playerControlled based on toggle state
-});
-
-// Inside startGame function, replace the AI logic check with:
-if (!playerControlled) {
-    const path = findPath(); // Find the path to the apple
-    if (path && path.length > 1) {
-        const nextNode = path[1]; // Get the next move from the path
-
-        // Set direction based on the next move
-        if (nextNode.x < snake[0].x) direction = "LEFT";
-        if (nextNode.x > snake[0].x) direction = "RIGHT";
-        if (nextNode.y < snake[0].y) direction = "UP";
-        if (nextNode.y > snake[0].y) direction = "DOWN";
-    }
-}
-
-// Update snake position based on current direction
+// Update snake position based on current direction and lock it within the game bounds
 function updateSnakePosition() {
-    const head = { x: snake[0].x, y: snake[0].y }; // Create a new head based on the current head position
+    // Create a new head based on the current head position
+    const head = { x: snake[0].x, y: snake[0].y };
 
-    // Update the head position based on the current direction
-    if (direction === "LEFT") head.x -= box; // Move left
-    if (direction === "RIGHT") head.x += box; // Move right
-    if (direction === "UP") head.y -= box; // Move up
-    if (direction === "DOWN") head.y += box; // Move down
+    // Update the head's position based on the current direction
+    if (direction === "UP") {
+        head.y -= box; // Move the head up by one box
+    }
+    if (direction === "DOWN") {
+        head.y += box; // Move the head down by one box
+    }
+    if (direction === "LEFT") {
+        head.x -= box; // Move the head left by one box
+    }
+    if (direction === "RIGHT") {
+        head.x += box; // Move the head right by one box
+    }
 
-    // Check if the snake goes off-screen horizontally
-    if (head.x < 0) head.x = canvas.width - box; // Wrap around to the right
-    if (head.x >= canvas.width) head.x = 0; // Wrap around to the left
+    // Check for wall collisions and lock the snake within the canvas bounds (no wrapping)
+    if (head.x < 0) head.x = 0; // Prevent going off the left side
+    if (head.x >= canvas.width) head.x = canvas.width - box; // Prevent going off the right side
+    if (head.y < 0) head.y = 0; // Prevent going off the top
+    if (head.y >= maxHeight) head.y = maxHeight - box; // Prevent going below the max height
 
-    // Check if the snake goes off-screen vertically
-    if (head.y < 0) head.y = 0; // Prevent going above the canvas
-    if (head.y >= maxHeight) head.y = maxHeight - box; // Prevent going below the maximum height
-
-    // Add new head to the snake
-    snake.unshift(head); // Add new head to the front of the snake
+    // Add new head to the front of the snake
+    snake.unshift(head);
 
     // Check if the snake has eaten the apple
     if (head.x === apple.x && head.y === apple.y) {
         snakeLength++; // Increase snake length
         resetApplePosition(); // Reset apple position after eating
     } else {
-        snake.pop(); // Remove the last segment of the snake if not eating
+        // Remove the last segment of the snake if it hasn't eaten the apple
+        snake.pop();
     }
 
-    // Limit snake length to max length
-    if (snakeLength > maxSnakeLength) {
-        snakeLength = maxSnakeLength; // Cap the snake length
+    // Limit snake length to max length (if you have a reason to limit the snake)
+    if (snake.length > maxSnakeLength) {
+        snake.length = maxSnakeLength; // Cap the snake length
     }
 }
 
@@ -291,38 +185,29 @@ function renderGame() {
 
     // Draw the score
     ctx.fillStyle = "green"; // Set score color
-    ctx.font = "12px courier new"; // Set font style
+    ctx.font = "bold 20px courier new"; // Set font style
     ctx.fillText("Score: " + snakeLength, 10, 30); // Display score on the canvas
 }
 
-// Handle key presses for snake control
-document.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowUp" && direction !== "DOWN") direction = "UP"; // Change direction to up
-    if (event.key === "ArrowDown" && direction !== "UP") direction = "DOWN"; // Change direction to down
-    if (event.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT"; // Change direction to left
-    if (event.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT"; // Change direction to right
-    playerControlled = true; // Set player controlled to true
-});
-
-// Function to submit score to the server
-function submitScore(score) {
-    const url = '/submit_score'; // Your server endpoint for score submission
-    const data = { score: score }; // Data to send to server
-
-    fetch(url, {
-        method: 'POST', // HTTP method
+// Submit score to the server
+if (playerName) {
+    fetch("/submit-score", {
+        method: "POST",
         headers: {
-            'Content-Type': 'application/json', // Content type for the request
+            "Content-Type": "application/json",
         },
-        body: JSON.stringify(data), // Stringify the data for the request
+        body: JSON.stringify({ name: playerName }),
     })
-    .then(response => response.json()) // Parse the JSON response
+    .then(response => response.json())
     .then(data => {
-        console.log('Score submitted:', data); // Log response data
+        console.log("Score submitted successfully:", data);
+        loadLeaderboard(); // Refresh leaderboard after submitting score
     })
     .catch(error => {
-        console.error('Error submitting score:', error); // Log any errors
+        console.error("Error submitting score:", error);
     });
+} else {
+    alert("Please enter a valid name.");
 }
 
 // Reset the game
