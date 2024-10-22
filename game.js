@@ -2,17 +2,14 @@ let canvas = document.getElementById("gameCanvas");
 let ctx = canvas.getContext("2d");
 
 // Desired base resolution for the game
-const baseWidth = 800; // Desired width of the game canvas
-const baseHeight = 1200; // Desired height of the game canvas
+const baseWidth = 1200; // Desired width of the game canvas
+const baseHeight = 1000; // Desired height of the game canvas
 
 // Snake segment size (width and height of each segment)
 const box = 20; // Size of each snake segment
 
 // Calculate maximum snake length based on the initial canvas size
 const maxSnakeLength = Math.floor((baseWidth * baseHeight) / (box * box));
-
-// New maximum height for the apple and snake
-const maxHeight = 1200; // Maximum height for apple and snake
 
 let frameRate = 60; // Set the game to run at 60 frames per second
 let snakeSpeed = 15; // Adjust this value to control the game speed (reduce to slow down)
