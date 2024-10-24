@@ -2,8 +2,8 @@ let canvas = document.getElementById("gameCanvas");
 let ctx = canvas.getContext("2d");
 
 // Desired base resolution for the game
-const baseWidth = 800;
-const baseHeight = 800;
+const baseWidth = 790;
+const baseHeight = 843;
 
 // Snake segment size
 const box = 20;
