@@ -216,7 +216,7 @@ function renderGame() {
     // Draw the score
     ctx.fillStyle = "green"; // Set score color
     ctx.font = "bold 20px Courier New"; // Set font style
-    ctx.fillText("Score: " + snakeLength, 70, 10); // Display score on the canvas
+    ctx.fillText("Score: " + snakeLength, 50, 10); // Display score on the canvas
 
 }
 
