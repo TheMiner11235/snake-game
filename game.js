@@ -16,8 +16,8 @@ const maxHeight = 800;
 
 let frameRate = 60;
 let snakeSpeed = 15;
-let scoreMilestone = 10;
-let nextColorChangeMilestone = 50; // Score at which color changes and speed boosts further
+let scoreMilestone = 5;
+let nextColorChangeMilestone = 25; // Score at which color changes and speed boosts further
 let nextSpeedMilestone = 70; // First milestone after color change to increase speed by 10
 let timeSinceLastMove = 0;
 
@@ -131,7 +131,6 @@ function snakeCollision(x, y) {
 // Game over function
 function gameOver() {
     clearInterval(gameInterval); // Stop the game loop
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
 
     ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -197,7 +196,7 @@ function updateSnakePosition() {
         
         // Change color to deep red and set speed to 30 when reaching 50 points
         if (snakeLength >= nextColorChangeMilestone) {
-            snakeSpeed = 30;
+            snakeSpeed = 40;
             nextColorChangeMilestone = Infinity; // Prevent multiple color changes
             document.body.style.backgroundColor = "darkred"; // Change game background
         }
