@@ -12,10 +12,13 @@ const box = 20;
 const maxSnakeLength = Math.floor((baseWidth * baseHeight) / (box * box));
 
 // New maximum height for apple and snake
-const maxHeight = 843;
-const maxWidth = 790;
+const maxHeight = 800;
+
 let frameRate = 60;
 let snakeSpeed = 15;
+let scoreMilestone = 10;
+let nextColorChangeMilestone = 50; // Score at which color changes and speed boosts further
+let nextSpeedMilestone = 70; // First milestone after color change to increase speed by 10
 let timeSinceLastMove = 0;
 
 // Snake and Apple configuration
@@ -146,6 +149,16 @@ function gameOver() {
 }
 
 // Update snake position
+// Set this variable when the game starts
+let playerName = "";
+
+document.getElementById("startGame").addEventListener("click", () => {
+    playerName = document.getElementById("playerNameInput").value; // Get player name from input
+    document.getElementById("startGame").style.display = "none";
+    canvas.style.display = "block";
+    startGame(); // Start the game logic
+});
+
 function updateSnakePosition() {
     const head = { x: snake[0].x, y: snake[0].y };
 
@@ -168,27 +181,57 @@ function updateSnakePosition() {
 
     snake.unshift(head); // Add new head
 
-    // Check if snake eats the apple
-    if (head.x === apple.x && head.y === apple.y) {
-        snakeLength++;
-        resetApplePosition();
+     if (head.x === apple.x && head.y === apple.y) {
+        // Apply score multiplier if the player name is "Host"
+        let scoreIncrement = playerName === "host" ? 10 : 1;
+        snakeLength += scoreIncrement;
+
+        // Reset apple position after eating
+        resetApplePosition();	
+
+        // Increase speed and change color milestones
+        if (snakeLength >= scoreMilestone) {
+            snakeSpeed += 5;
+            scoreMilestone += 10;
+        }
+        
+        // Change color to deep red and set speed to 30 when reaching 50 points
+        if (snakeLength >= nextColorChangeMilestone) {
+            snakeSpeed = 30;
+            nextColorChangeMilestone = Infinity; // Prevent multiple color changes
+            document.body.style.backgroundColor = "darkred"; // Change game background
+        }
+        
+        // Further increase speed by 10 every 20 points after 50
+        if (snakeLength >= nextSpeedMilestone) {
+            snakeSpeed += 10;
+            nextSpeedMilestone += 20;
+
+            clearInterval(gameInterval); // Clear the current interval
+            gameInterval = setInterval(gameLoop, 1000 / frameRate); // Restart interval with new speed
+        }
     } else {
-        snake.pop(); // Remove the last segment if not eating
+        snake.pop(); // Remove the last segment if the snake didn't eat an apple
     }
 
-    if (snake.length > maxSnakeLength) {
-        snake.length = maxSnakeLength; // Limit the snake length if necessary
-    }
+    if (snake.length > maxSnakeLength) snake.length = maxSnakeLength;
 }
 
 // Render the game visuals
 function renderGame() {
-    // Set the background to black
-    ctx.fillStyle = "black";
+    // Set background and grid color based on score
+    if (snakeLength >= 50) {
+        ctx.fillStyle = "darkred"; // Deep red background for score 50+
+        ctx.strokeStyle = "#880000"; // Darker red grid lines for contrast in red mode
+    } else {
+        ctx.fillStyle = "black"; // Default black background
+        ctx.strokeStyle = "#004400"; // Dark green grid lines
+    }
+
+    // Draw background
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw grid lines with thicker strokes
-    ctx.strokeStyle = "#004400"; // Dark green for grid lines
+    // Draw grid lines
     ctx.lineWidth = 2; // Set line width for grid lines
     for (let x = 0; x <= canvas.width; x += box) {
         ctx.beginPath();
@@ -205,19 +248,18 @@ function renderGame() {
 
     // Draw the snake
     for (let i = 0; i < snake.length; i++) {
-        ctx.fillStyle = "green"; // Set snake color
-        ctx.fillRect(snake[i].x, snake[i].y, box, box); // Draw each segment
+        ctx.fillStyle = snakeLength >= 50 ? "darkred" : "green"; // Deep red snake at score 50+
+        ctx.fillRect(snake[i].x, snake[i].y, box, box);
     }
 
     // Draw the apple
-    ctx.fillStyle = "red"; // Set apple color
-    ctx.fillRect(apple.x, apple.y, box, box); // Draw the apple
+    ctx.fillStyle = "red";
+    ctx.fillRect(apple.x, apple.y, box, box);
 
     // Draw the score
-    ctx.fillStyle = "green"; // Set score color
-    ctx.font = "bold 20px Courier New"; // Set font style
-    ctx.fillText("Score: " + snakeLength, 100, 10); // Display score on the canvas
-
+    ctx.fillStyle = "white";
+    ctx.font = "bold 20px Courier New";
+    ctx.fillText("Score: " + snakeLength, 10, 30);
 }
 
 // Function to reset the game without reloading the page
