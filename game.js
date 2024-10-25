@@ -129,14 +129,16 @@ function snakeCollision(x, y) {
     return snake.some(segment => segment.x === x && segment.y === y);
 }
 
-// Game over function
 function gameOver() {
     clearInterval(gameInterval); // Stop the game loop
     isGameOver = true; // Set the game-over flag
 
-    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Clear canvas and draw overlay
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear everything
+    ctx.fillStyle = "rgba(0, 0, 0, 0.7)"; // Background overlay color
+    ctx.fillRect(0, 0, canvas.width, canvas.height); // Fill entire canvas
 
+    // Draw the "Game Over" text and score in the center
     ctx.fillStyle = "red";
     ctx.font = "bold 50px Courier New";
     ctx.textAlign = "center";
@@ -148,7 +150,7 @@ function gameOver() {
         ctx.fillText("Player: " + playerName, canvas.width / 2, canvas.height / 2 + 40);
     }
 
-    // Call submitScore function to send score on game over
+    // Submit the score to the leaderboard
     submitScore(playerName, snakeLength);
 }
 
