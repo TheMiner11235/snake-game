@@ -52,8 +52,19 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas(); // Initialize canvas on load
 
-// Initialize game
+console.log("JavaScript file loaded"); // Check if the script is loading
+
+document.getElementById("startGame").addEventListener("click", () => {
+    console.log("Start button clicked"); // Check if the event listener works
+    playerName = document.getElementById("playerNameInput").value;
+    console.log("Player Name:", playerName); // Check the player name value
+    document.getElementById("startGame").style.display = "none";
+    canvas.style.display = "block";
+    startGame();
+});
+
 function startGame() {
+    console.log("Game started");
     document.getElementById("gameTitle").style.display = "none";
     document.getElementById("resetButton").style.display = "block"; // Show reset button
     const interval = 1000 / frameRate;
