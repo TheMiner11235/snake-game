@@ -130,26 +130,27 @@ function snakeCollision(x, y) {
     return snake.some(segment => segment.x === x && segment.y === y);
 }
 
-// Game over function
 function gameOver() {
     clearInterval(gameInterval); // Stop the game loop
     isGameOver = true; // Set the game-over flag
 
-    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Clear canvas and draw overlay
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear everything
+    ctx.fillStyle = "rgba(0, 0, 0, 0)"; // Background overlay color
 
+    // Draw the "Game Over" text and score in the center
     ctx.fillStyle = "red";
     ctx.font = "bold 50px Courier New";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 50);
-    ctx.fillText("Score: " + snakeLength, canvas.width / 2, canvas.height / 2);
+    ctx.fillText("GAME OVER");
+    ctx.fillText("Score: " + snakeLength);
 
     if (playerName) {
-        ctx.fillText("Player: " + playerName, canvas.width / 2, canvas.height / 2 + 40);
+        ctx.fillText("Player: " + playerName);
     }
 
-    // Call submitScore function to send score on game over
+    // Submit the score to the leaderboard
     submitScore(playerName, snakeLength);
 }
 
@@ -200,7 +201,7 @@ function updateSnakePosition() {
             scoreMilestone += 10;
         }
         
-        // Change color to deep red and set speed to 30 when reaching 50 points
+        // Change color to deep red and set speed to 40 when reaching 50 points
         if (snakeLength >= nextColorChangeMilestone) {
             snakeSpeed = 40;
             nextColorChangeMilestone = Infinity; // Prevent multiple color changes
