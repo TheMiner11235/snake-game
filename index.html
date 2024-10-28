@@ -67,24 +67,6 @@
             display: none;
         }
 
-        /* Leaderboard styling */
-        #leaderboard-container {
-            position: absolute; /* Set to absolute positioning */
-            top: 80px; /* Adjust this value to fit below the game title */
-            left: 20px; /* Set the left position */
-            color: lime;
-            font-family: 'Courier New', Courier, monospace;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start; /* Align items to the start */
-            max-width: 200px; /* Set a maximum width if needed */
-        }
-
-        #leaderboard {
-            list-style-type: none;
-            padding: 0;
-        }
-
         /* Positioning */
         #controls {
             text-align: center;
@@ -135,59 +117,8 @@
 
     <canvas id="gameCanvas"></canvas>
     <button id="resetButton" class="hidden">Reset</button>
-
-    <div id="leaderboard-container">
-        <h2>Leaderboard - Top 20</h2>
-        <ul id="leaderboard">
-            <!-- Leaderboard entries will be populated here -->
-        </ul>
     </div>
 
     <script src="game.js"></script>
-    
-    <script>
-            // Submit score to the server
-            if (playerName) {
-                fetch("/submit-score", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ name: playerName }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Score submitted successfully:", data);
-                    loadLeaderboard(); // Refresh leaderboard after submitting score
-                })
-                .catch(error => {
-                    console.error("Error submitting score:", error);
-                });
-            } else {
-                alert("Please enter a valid name.");
-        });
-
-        // Load leaderboard function
-        function loadLeaderboard() {
-            fetch("/leaderboard")
-                .then(response => response.json())
-                .then(data => {
-                    const leaderboard = document.getElementById("leaderboard");
-                    leaderboard.innerHTML = ""; // Clear current leaderboard
-
-                    data.forEach(entry => {
-                        const entryElement = document.createElement("li");
-                        entryElement.textContent = `${entry.name}: ${entry.score}`;
-                        leaderboard.appendChild(entryElement); // Append new entry to leaderboard
-                    });
-                })
-                .catch(error => {
-                    console.error("Error loading leaderboard:", error);
-                });
-        }
-
-        // Initialize leaderboard on page load
-        loadLeaderboard();
-    </script>
 </body>
 </html>
