@@ -135,19 +135,18 @@ function gameOver() {
 
     // Clear canvas and draw overlay
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear everything
-    ctx.fillStyle = "rgba(0, 0, 0, 0.7)"; // Background overlay color
-    ctx.fillRect(0, 0, canvas.width, canvas.height); // Fill entire canvas
+    ctx.fillStyle = "rgba(0, 0, 0, 0)"; // Background overlay color
 
     // Draw the "Game Over" text and score in the center
     ctx.fillStyle = "red";
     ctx.font = "bold 50px Courier New";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 50);
-    ctx.fillText("Score: " + snakeLength, canvas.width / 2, canvas.height / 2);
+    ctx.fillText("GAME OVER");
+    ctx.fillText("Score: " + snakeLength);
 
     if (playerName) {
-        ctx.fillText("Player: " + playerName, canvas.width / 2, canvas.height / 2 + 40);
+        ctx.fillText("Player: " + playerName);
     }
 
     // Submit the score to the leaderboard
