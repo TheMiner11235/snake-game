@@ -16,11 +16,10 @@ const maxHeight = 800;
 
 let frameRate = 60;
 let snakeSpeed = 15;
-let scoreMilestone = 5;
-let nextColorChangeMilestone = 25; // Score at which color changes and speed boosts further
+let scoreMilestone = 10;
+let nextColorChangeMilestone = 50; // Score at which color changes and speed boosts further
 let nextSpeedMilestone = 70; // First milestone after color change to increase speed by 10
 let timeSinceLastMove = 0;
-let isGameOver = false;
 
 // Snake and Apple configuration
 let direction = "RIGHT";
@@ -132,7 +131,7 @@ function snakeCollision(x, y) {
 // Game over function
 function gameOver() {
     clearInterval(gameInterval); // Stop the game loop
-    isGameOver = true; // Set the game-over flag
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
 
     ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -147,9 +146,6 @@ function gameOver() {
     if (playerName) {
         ctx.fillText("Player: " + playerName, canvas.width / 2, canvas.height / 2 + 40);
     }
-
-    // Call submitScore function to send score on game over
-    submitScore(playerName, snakeLength);
 }
 
 // Update snake position
@@ -201,7 +197,7 @@ function updateSnakePosition() {
         
         // Change color to deep red and set speed to 30 when reaching 50 points
         if (snakeLength >= nextColorChangeMilestone) {
-            snakeSpeed = 40;
+            snakeSpeed = 30;
             nextColorChangeMilestone = Infinity; // Prevent multiple color changes
             document.body.style.backgroundColor = "darkred"; // Change game background
         }
@@ -264,15 +260,11 @@ function renderGame() {
     ctx.fillStyle = "white";
     ctx.font = "bold 20px Courier New";
     ctx.fillText("Score: " + snakeLength, 10, 30);
-
-    function renderGame() {
-    if (isGameOver) return; // Stop rendering if game is over
 }
 
 // Function to reset the game without reloading the page
 function resetGame() {
-      clearInterval(gameInterval); // Stop current game loop
-    isGameOver = false; // Reset game-over flag
+    clearInterval(gameInterval); // Stop current game loop
 
     // Reset snake, apple, and score
     snake = [{ x: 200, y: 200 }];
