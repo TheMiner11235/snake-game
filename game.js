@@ -12,8 +12,8 @@ const box = 20;
 const maxSnakeLength = Math.floor((baseWidth * baseHeight) / (box * box));
 
 // New maximum height for apple and snake
-const maxHeight = 843;
-const maxWidth = 790;
+const maxHeight = 800;
+const maxWidth = 800;
 let frameRate = 60;
 let snakeSpeed = 15;
 let timeSinceLastMove = 0;
@@ -130,7 +130,7 @@ function gameOver() {
     clearInterval(gameInterval); // Stop the game loop
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
 
-    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+    ctx.fillStyle = "rgba(0, 0, 0, 0)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.fillStyle = "red";
