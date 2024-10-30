@@ -2,8 +2,8 @@ let canvas = document.getElementById("gameCanvas");
 let ctx = canvas.getContext("2d");
 
 // Set canvas dimensions to 960x960
-canvas.width = 960;
-canvas.height = 960;
+canvas.width = 800;
+canvas.height = 800;
 
 // Snake segment size
 const box = 20;
