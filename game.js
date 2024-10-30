@@ -3,8 +3,8 @@ let canvas = document.getElementById("gameCanvas");
 let ctx = canvas.getContext("2d");
 
 // Desired base resolution for the game
-const baseWidth = 960;
-const baseHeight = 960;
+const baseWidth = 800;
+const baseHeight = 800;
 
 // Snake segment size
 const box = 20;
@@ -13,8 +13,8 @@ const box = 20;
 const maxSnakeLength = Math.floor((baseWidth * baseHeight) / (box * box));
 
 // New maximum height for apple and snake
-const maxHeight = 960;
-const maxWidth = 960;
+const maxHeight = 800;
+const maxWidth = 800;
 let frameRate = 60;
 let snakeSpeed = 15;
 let timeSinceLastMove = 0;
@@ -211,38 +211,3 @@ function resetGame() {
 
 // Add reset button event listener
 document.getElementById("resetButton").addEventListener("click", resetGame);
-
-// Function to submit score (if it's not working, ensure it's called on game over)
-function submitScore(playerName, snakeLength) {
-    fetch("/submit-score", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: playerName, score: snakeLength })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Score submitted successfully:", data);
-        loadLeaderboard(); // Reload leaderboard after submitting score
-    })
-    .catch(error => console.error("Error submitting score:", error));
-}
-
-// Leaderboard display logic
-function updateLeaderboard() {
-    const url = '/leaderboard';
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            const leaderboardElement = document.getElementById("leaderboard");
-            leaderboardElement.innerHTML = "";
-
-            data.forEach(entry => {
-                const entryElement = document.createElement("div");
-                entryElement.textContent = `${entry.username}: ${entry.score}`;
-                leaderboardElement.appendChild(entryElement);
-            });
-        })
-        .catch(error => console.error('Error fetching leaderboard:', error));
-}
-
-setInterval(updateLeaderboard, 5000); // Refresh leaderboard every 5 seconds
