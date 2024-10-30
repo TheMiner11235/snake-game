@@ -1,4 +1,3 @@
-
 let canvas = document.getElementById("gameCanvas");
 let ctx = canvas.getContext("2d");
 
@@ -13,15 +12,11 @@ const box = 20;
 const maxSnakeLength = Math.floor((baseWidth * baseHeight) / (box * box));
 
 // New maximum height for apple and snake
-const maxHeight = 800;
-
+const maxHeight = 843;
+const maxWidth = 790;
 let frameRate = 60;
 let snakeSpeed = 15;
-let scoreMilestone = 5;
-let nextColorChangeMilestone = 25; // Score at which color changes and speed boosts further
-let nextSpeedMilestone = 70; // First milestone after color change to increase speed by 10
 let timeSinceLastMove = 0;
-let isGameOver = false;
 
 // Snake and Apple configuration
 let direction = "RIGHT";
@@ -130,41 +125,27 @@ function snakeCollision(x, y) {
     return snake.some(segment => segment.x === x && segment.y === y);
 }
 
+// Game over function
 function gameOver() {
     clearInterval(gameInterval); // Stop the game loop
-    isGameOver = true; // Set the game-over flag
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
 
-    // Clear canvas and draw overlay
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear everything
-    ctx.fillStyle = "rgba(0, 0, 0, 0)"; // Background overlay color
+    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw the "Game Over" text and score in the center
     ctx.fillStyle = "red";
     ctx.font = "bold 50px Courier New";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("GAME OVER");
-    ctx.fillText("Score: " + snakeLength);
+    ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 50);
+    ctx.fillText("Score: " + snakeLength, canvas.width / 2, canvas.height / 2);
 
     if (playerName) {
-        ctx.fillText("Player: " + playerName);
+        ctx.fillText("Player: " + playerName, canvas.width / 2, canvas.height / 2 + 40);
     }
-
-    // Submit the score to the leaderboard
-    submitScore(playerName, snakeLength);
 }
 
 // Update snake position
-// Set this variable when the game starts
-let playerName = "";
-
-document.getElementById("startGame").addEventListener("click", () => {
-    playerName = document.getElementById("playerNameInput").value; // Get player name from input
-    document.getElementById("startGame").style.display = "none";
-    canvas.style.display = "block";
-    startGame(); // Start the game logic
-});
-
 function updateSnakePosition() {
     const head = { x: snake[0].x, y: snake[0].y };
 
@@ -187,57 +168,27 @@ function updateSnakePosition() {
 
     snake.unshift(head); // Add new head
 
-     if (head.x === apple.x && head.y === apple.y) {
-        // Apply score multiplier if the player name is "Host"
-        let scoreIncrement = playerName === "host" ? 10 : 1;
-        snakeLength += scoreIncrement;
-
-        // Reset apple position after eating
-        resetApplePosition();	
-
-        // Increase speed and change color milestones
-        if (snakeLength >= scoreMilestone) {
-            snakeSpeed += 5;
-            scoreMilestone += 10;
-        }
-        
-        // Change color to deep red and set speed to 40 when reaching 50 points
-        if (snakeLength >= nextColorChangeMilestone) {
-            snakeSpeed = 40;
-            nextColorChangeMilestone = Infinity; // Prevent multiple color changes
-            document.body.style.backgroundColor = "darkred"; // Change game background
-        }
-        
-        // Further increase speed by 10 every 20 points after 50
-        if (snakeLength >= nextSpeedMilestone) {
-            snakeSpeed += 10;
-            nextSpeedMilestone += 20;
-
-            clearInterval(gameInterval); // Clear the current interval
-            gameInterval = setInterval(gameLoop, 1000 / frameRate); // Restart interval with new speed
-        }
+    // Check if snake eats the apple
+    if (head.x === apple.x && head.y === apple.y) {
+        snakeLength++;
+        resetApplePosition();
     } else {
-        snake.pop(); // Remove the last segment if the snake didn't eat an apple
+        snake.pop(); // Remove the last segment if not eating
     }
 
-    if (snake.length > maxSnakeLength) snake.length = maxSnakeLength;
+    if (snake.length > maxSnakeLength) {
+        snake.length = maxSnakeLength; // Limit the snake length if necessary
+    }
 }
 
 // Render the game visuals
 function renderGame() {
-    // Set background and grid color based on score
-    if (snakeLength >= 50) {
-        ctx.fillStyle = "darkred"; // Deep red background for score 50+
-        ctx.strokeStyle = "#880000"; // Darker red grid lines for contrast in red mode
-    } else {
-        ctx.fillStyle = "black"; // Default black background
-        ctx.strokeStyle = "#004400"; // Dark green grid lines
-    }
-
-    // Draw background
+    // Set the background to black
+    ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw grid lines
+    // Draw grid lines with thicker strokes
+    ctx.strokeStyle = "#004400"; // Dark green for grid lines
     ctx.lineWidth = 2; // Set line width for grid lines
     for (let x = 0; x <= canvas.width; x += box) {
         ctx.beginPath();
@@ -254,27 +205,24 @@ function renderGame() {
 
     // Draw the snake
     for (let i = 0; i < snake.length; i++) {
-        ctx.fillStyle = snakeLength >= 50 ? "darkred" : "green"; // Deep red snake at score 50+
-        ctx.fillRect(snake[i].x, snake[i].y, box, box);
+        ctx.fillStyle = "green"; // Set snake color
+        ctx.fillRect(snake[i].x, snake[i].y, box, box); // Draw each segment
     }
 
     // Draw the apple
-    ctx.fillStyle = "red";
-    ctx.fillRect(apple.x, apple.y, box, box);
+    ctx.fillStyle = "red"; // Set apple color
+    ctx.fillRect(apple.x, apple.y, box, box); // Draw the apple
 
     // Draw the score
-    ctx.fillStyle = "white";
-    ctx.font = "bold 20px Courier New";
-    ctx.fillText("Score: " + snakeLength, 10, 30);
+    ctx.fillStyle = "green"; // Set score color
+    ctx.font = "bold 20px Courier New"; // Set font style
+    ctx.fillText("Score: " + snakeLength, 10, 30); // Display score on the canvas
 
-    function renderGame() {
-    if (isGameOver) return; // Stop rendering if game is over
 }
 
 // Function to reset the game without reloading the page
 function resetGame() {
-      clearInterval(gameInterval); // Stop current game loop
-    isGameOver = false; // Reset game-over flag
+    clearInterval(gameInterval); // Stop current game loop
 
     // Reset snake, apple, and score
     snake = [{ x: 200, y: 200 }];
@@ -291,3 +239,38 @@ function resetGame() {
 
 // Add reset button event listener
 document.getElementById("resetButton").addEventListener("click", resetGame);
+
+// Function to submit score (if it's not working, ensure it's called on game over)
+function submitScore(playerName, snakeLength) {
+    fetch("/submit-score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: playerName, score: snakeLength })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Score submitted successfully:", data);
+        loadLeaderboard(); // Reload leaderboard after submitting score
+    })
+    .catch(error => console.error("Error submitting score:", error));
+}
+
+// Leaderboard display logic
+function updateLeaderboard() {
+    const url = '/leaderboard';
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const leaderboardElement = document.getElementById("leaderboard");
+            leaderboardElement.innerHTML = "";
+
+            data.forEach(entry => {
+                const entryElement = document.createElement("div");
+                entryElement.textContent = `${entry.username}: ${entry.score}`;
+                leaderboardElement.appendChild(entryElement);
+            });
+        })
+        .catch(error => console.error('Error fetching leaderboard:', error));
+}
+
+setInterval(updateLeaderboard, 5000); // Refresh leaderboard every 5 seconds
