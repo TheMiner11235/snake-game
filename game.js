@@ -44,6 +44,35 @@ function resetApplePosition() {
     }
 }
 
+// Resize the canvas while maintaining aspect ratio
+function resizeCanvas() {
+    const aspectRatio = baseWidth / baseHeight;
+
+    // Check if the window size changed significantly enough to trigger a resize
+    const newWidth = window.innerWidth;
+    const newHeight = window.innerHeight;
+
+    // If the change in size is very small (like when opening dev tools), don't resize
+    if (Math.abs(newWidth - canvas.width) < 10 && Math.abs(newHeight - canvas.height) < 10) {
+        return; // Exit function, no need to resize
+    }
+
+    if (newWidth / newHeight < aspectRatio) {
+        // Adjust based on window's width
+        canvas.width = newWidth;
+        canvas.height = newWidth / aspectRatio;
+    } else {
+        // Adjust based on window's height
+        canvas.height = newHeight;
+        canvas.width = newHeight * aspectRatio;
+    }
+
+    resetApplePosition(); // Reinitialize apple position after resizing
+}
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas(); // Initialize canvas on load
+
 document.getElementById("startGame").addEventListener("click", () => {
     document.getElementById("startGame").style.display = "none"; // Hide start button
     canvas.style.display = "block"; // Show the game canvas
@@ -211,3 +240,38 @@ function resetGame() {
 
 // Add reset button event listener
 document.getElementById("resetButton").addEventListener("click", resetGame);
+
+// Function to submit score (if it's not working, ensure it's called on game over)
+function submitScore(playerName, snakeLength) {
+    fetch("/submit-score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: playerName, score: snakeLength })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Score submitted successfully:", data);
+        loadLeaderboard(); // Reload leaderboard after submitting score
+    })
+    .catch(error => console.error("Error submitting score:", error));
+}
+
+// Leaderboard display logic
+function updateLeaderboard() {
+    const url = '/leaderboard';
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const leaderboardElement = document.getElementById("leaderboard");
+            leaderboardElement.innerHTML = "";
+
+            data.forEach(entry => {
+                const entryElement = document.createElement("div");
+                entryElement.textContent = `${entry.username}: ${entry.score}`;
+                leaderboardElement.appendChild(entryElement);
+            });
+        })
+        .catch(error => console.error('Error fetching leaderboard:', error));
+}
+
+setInterval(updateLeaderboard, 5000); // Refresh leaderboard every 5 seconds
