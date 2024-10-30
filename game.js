@@ -23,6 +23,9 @@ let timeSinceLastMove = 0;
 let direction = "RIGHT";
 let snake = [{ x: 200, y: 200 }];
 let snakeLength = 1;
+let gameRunning = false;
+let directionSet = false;
+let gameInterval;
 
 let apple = {
     x: Math.floor(Math.random() * (maxWidth / box)) * box,
@@ -68,11 +71,22 @@ function startGame() {
 }
 
 document.addEventListener("keydown", (event) => {
-    if (event.key === "w" && direction !== "DOWN") direction = "UP";
-    if (event.key === "s" && direction !== "UP") direction = "DOWN";
-    if (event.key === "a" && direction !== "RIGHT") direction = "LEFT";
-    if (event.key === "d" && direction !== "LEFT") direction = "RIGHT";
-    directionSet = true;
+    if (event.key === "Enter") {
+        if (!gameRunning) startGame();
+        else resetGame();
+    } else if (event.key === "w" && direction !== "DOWN") {
+        direction = "UP";
+        directionSet = true;
+    } else if (event.key === "s" && direction !== "UP") {
+        direction = "DOWN";
+        directionSet = true;
+    } else if (event.key === "a" && direction !== "RIGHT") {
+        direction = "LEFT";
+        directionSet = true;
+    } else if (event.key === "d" && direction !== "LEFT") {
+        direction = "RIGHT";
+        directionSet = true;
+    }
 });
 
 function snakeCollision(x, y) {
@@ -80,18 +94,30 @@ function snakeCollision(x, y) {
 }
 
 function gameOver() {
-    clearInterval(gameInterval);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "rgba(0, 0, 0, 0)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    clearInterval(gameInterval); // Stop the game loop
+    gameRunning = false;
 
+    // Clear the canvas completely to remove game elements
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Display the Game Over screen
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height); // Black background for the end screen
+
+    // Game Over text
     ctx.fillStyle = "red";
     ctx.font = "bold 50px Courier New";
     ctx.textAlign = "center";
-    ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 50);
+    ctx.textBaseline = "middle";
+    ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 60);
+
+    // Display score
+    ctx.font = "bold 30px Courier New";
     ctx.fillText("Score: " + snakeLength, canvas.width / 2, canvas.height / 2);
+
+    // Display player name if available
     if (playerName) {
-        ctx.fillText("Player: " + playerName, canvas.width / 2, canvas.height / 2 + 40);
+        ctx.fillText("Player: " + playerName, canvas.width / 2, canvas.height / 2 + 60);
     }
 }
 
