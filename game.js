@@ -43,35 +43,6 @@ function resetApplePosition() {
     }
 }
 
-// Resize the canvas while maintaining aspect ratio
-function resizeCanvas() {
-    const aspectRatio = baseWidth / baseHeight;
-
-    // Check if the window size changed significantly enough to trigger a resize
-    const newWidth = window.innerWidth;
-    const newHeight = window.innerHeight;
-
-    // If the change in size is very small (like when opening dev tools), don't resize
-    if (Math.abs(newWidth - canvas.width) < 10 && Math.abs(newHeight - canvas.height) < 10) {
-        return; // Exit function, no need to resize
-    }
-
-    if (newWidth / newHeight < aspectRatio) {
-        // Adjust based on window's width
-        canvas.width = newWidth;
-        canvas.height = newWidth / aspectRatio;
-    } else {
-        // Adjust based on window's height
-        canvas.height = newHeight;
-        canvas.width = newHeight * aspectRatio;
-    }
-
-    resetApplePosition(); // Reinitialize apple position after resizing
-}
-
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas(); // Initialize canvas on load
-
 document.getElementById("startGame").addEventListener("click", () => {
     document.getElementById("startGame").style.display = "none"; // Hide start button
     canvas.style.display = "block"; // Show the game canvas
