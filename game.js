@@ -1,25 +1,31 @@
-
 let canvas = document.getElementById("gameCanvas");
 let ctx = canvas.getContext("2d");
 
-// Desired base resolution for the game
-const baseWidth = 800;
-const baseHeight = 800;
+// Set canvas dimensions based on device and OS
+if (window.innerWidth <= 768) {
+    canvas.width = 700;
+    canvas.height = 700;
+} else if (navigator.userAgent.includes("iPad")) {
+    canvas.width = 1300;
+    canvas.height = 1100;
+} else if (navigator.userAgent.includes("Mac OS")) {
+    canvas.width = 848;
+    canvas.height = 848;
+} else {
+    canvas.width = 800;
+    canvas.height = 800;
+}
 
 // Snake segment size
 const box = 20;
+const maxWidth = canvas.width;
+const maxHeight = canvas.height;
+const maxSnakeLength = Math.floor((maxWidth * maxHeight) / (box * box));
 
-// Calculate maximum snake length based on canvas size
-const maxSnakeLength = Math.floor((baseWidth * baseHeight) / (box * box));
-
-// New maximum height for apple and snake
-const maxHeight = 800;
-const maxWidth = 800;
+// Rule Set
 let frameRate = 60;
 let snakeSpeed = 15;
 let timeSinceLastMove = 0;
-
-// Snake and Apple configuration
 let direction = "RIGHT";
 let snake = [{ x: 200, y: 200 }];
 let snakeLength = 1;
@@ -44,31 +50,56 @@ function resetApplePosition() {
     }
 }
 
-// Resize the canvas while maintaining aspect ratio
+// Resize canvas while maintaining aspect ratio
 function resizeCanvas() {
-    const aspectRatio = baseWidth / baseHeight;
+    const aspectRatio = maxWidth / maxHeight;
 
-    // Check if the window size changed significantly enough to trigger a resize
     const newWidth = window.innerWidth;
     const newHeight = window.innerHeight;
 
-    // If the change in size is very small (like when opening dev tools), don't resize
     if (Math.abs(newWidth - canvas.width) < 10 && Math.abs(newHeight - canvas.height) < 10) {
-        return; // Exit function, no need to resize
+        return;
     }
 
     if (newWidth / newHeight < aspectRatio) {
-        // Adjust based on window's width
         canvas.width = newWidth;
         canvas.height = newWidth / aspectRatio;
     } else {
-        // Adjust based on window's height
         canvas.height = newHeight;
         canvas.width = newHeight * aspectRatio;
     }
 
-    resetApplePosition(); // Reinitialize apple position after resizing
+    resetApplePosition();
 }
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// Swipe-based movement controls
+let startX = 0;
+let startY = 0;
+
+canvas.addEventListener("touchstart", function (event) {
+    startX = event.touches[0].clientX;
+    startY = event.touches[0].clientY;
+});
+
+canvas.addEventListener("touchend", function (event) {
+    let endX = event.changedTouches[0].clientX;
+    let endY = event.changedTouches[0].clientY;
+
+    let deltaX = endX - startX;
+    let deltaY = endY - startY;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        if (deltaX > 0 && direction !== "LEFT") direction = "RIGHT";
+        else if (deltaX < 0 && direction !== "RIGHT") direction = "LEFT";
+    } else {
+        if (deltaY > 0 && direction !== "UP") direction = "DOWN";
+        else if (deltaY < 0 && direction !== "DOWN") direction = "UP";
+    }
+    directionSet = true;
+});
 
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas(); // Initialize canvas on load
@@ -241,7 +272,6 @@ function resetGame() {
 // Add reset button event listener
 document.getElementById("resetButton").addEventListener("click", resetGame);
 
-// Function to submit score (if it's not working, ensure it's called on game over)
 function submitScore(playerName, snakeLength) {
     fetch("/submit-score", {
         method: "POST",
@@ -251,19 +281,19 @@ function submitScore(playerName, snakeLength) {
     .then(response => response.json())
     .then(data => {
         console.log("Score submitted successfully:", data);
-        loadLeaderboard(); // Reload leaderboard after submitting score
+        loadLeaderboard();
     })
     .catch(error => console.error("Error submitting score:", error));
 }
 
-// Leaderboard display logic
 function updateLeaderboard() {
-    const url = '/leaderboard';
-    fetch(url)
+    fetch('/leaderboard')
         .then(response => response.json())
         .then(data => {
             const leaderboardElement = document.getElementById("leaderboard");
             leaderboardElement.innerHTML = "";
+            leaderboardElement.style.font = "18px Courier New"; // Styling leaderboard text
+            leaderboardElement.style.color = "lime";
 
             data.forEach(entry => {
                 const entryElement = document.createElement("div");
@@ -274,4 +304,4 @@ function updateLeaderboard() {
         .catch(error => console.error('Error fetching leaderboard:', error));
 }
 
-setInterval(updateLeaderboard, 5000); // Refresh leaderboard every 5 seconds
+setInterval(updateLeaderboard, 5000);
