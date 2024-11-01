@@ -52,6 +52,41 @@ function resetApplePosition() {
     }
 }
 
+let touchStartX = 0;
+let touchStartY = 0;
+
+// Detects swipe direction and prevents default page behavior
+canvas.addEventListener("touchstart", (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+});
+
+canvas.addEventListener("touchmove", (e) => {
+    e.preventDefault(); // Prevent default scrolling/reload behavior
+}, { passive: false });
+
+canvas.addEventListener("touchend", (e) => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+
+    const diffX = touchEndX - touchStartX;
+    const diffY = touchEndY - touchStartY;
+
+    // Check for the dominant direction of the swipe
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+        if (diffX > 0 && direction !== "LEFT") {
+            direction = "RIGHT";
+        } else if (diffX < 0 && direction !== "RIGHT") {
+            direction = "LEFT";
+        }
+    } else {
+        if (diffY > 0 && direction !== "UP") {
+            direction = "DOWN";
+        } else if (diffY < 0 && direction !== "DOWN") {
+            direction = "UP";
+        }
+    }
+});
 // Resize canvas while maintaining aspect ratio
 function resizeCanvas() {
     const aspectRatio = maxWidth / maxHeight;
