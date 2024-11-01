@@ -36,17 +36,19 @@ let apple = {
     y: Math.floor(Math.random() * (maxHeight / box)) * box
 };
 
-// Function to reset the apple position randomly within the canvas
+// Enhanced Reset Apple Position function
 function resetApplePosition() {
     let appleOnSnake = true;
-
     while (appleOnSnake) {
-        apple = {
-            x: Math.floor(Math.random() * (canvas.width / box)) * box,
-            y: Math.floor(Math.random() * (maxHeight / box)) * box
-        };
-        // Ensure the apple doesn't land on the snake
-        appleOnSnake = snake.some(segment => segment.x === apple.x && segment.y === apple.y);
+        const newX = Math.floor(Math.random() * (canvas.width / box)) * box;
+        const newY = Math.floor(Math.random() * (canvas.height / box)) * box;
+
+        // Set new apple position only if it doesn't overlap the snake
+        if (!snake.some(segment => segment.x === newX && segment.y === newY)) {
+            apple.x = newX;
+            apple.y = newY;
+            appleOnSnake = false;
+        }
     }
 }
 
@@ -75,31 +77,21 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-// Swipe-based movement controls
-let startX = 0;
-let startY = 0;
+// Enhanced Reset Apple Position function
+function resetApplePosition() {
+    let appleOnSnake = true;
+    while (appleOnSnake) {
+        const newX = Math.floor(Math.random() * (canvas.width / box)) * box;
+        const newY = Math.floor(Math.random() * (canvas.height / box)) * box;
 
-canvas.addEventListener("touchstart", function (event) {
-    startX = event.touches[0].clientX;
-    startY = event.touches[0].clientY;
-});
-
-canvas.addEventListener("touchend", function (event) {
-    let endX = event.changedTouches[0].clientX;
-    let endY = event.changedTouches[0].clientY;
-
-    let deltaX = endX - startX;
-    let deltaY = endY - startY;
-
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        if (deltaX > 0 && direction !== "LEFT") direction = "RIGHT";
-        else if (deltaX < 0 && direction !== "RIGHT") direction = "LEFT";
-    } else {
-        if (deltaY > 0 && direction !== "UP") direction = "DOWN";
-        else if (deltaY < 0 && direction !== "DOWN") direction = "UP";
+        // Set new apple position only if it doesn't overlap the snake
+        if (!snake.some(segment => segment.x === newX && segment.y === newY)) {
+            apple.x = newX;
+            apple.y = newY;
+            appleOnSnake = false;
+        }
     }
-    directionSet = true;
-});
+}
 
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas(); // Initialize canvas on load
