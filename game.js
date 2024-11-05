@@ -30,6 +30,28 @@ let direction = "RIGHT";
 let snake = [{ x: 200, y: 200 }];
 let snakeLength = 1;
 
+let userInfo = null; // Store the signed-in user's information
+
+function onGoogleSignIn(response) {
+    const credential = response.credential;
+    const userPayload = JSON.parse(atob(credential.split('.')[1]));
+
+    userInfo = {
+        name: userPayload.name,
+        email: userPayload.email,
+        userId: userPayload.sub
+    };
+
+    // Send user info to your server to save user details
+    fetch("/save-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userInfo)
+    })
+    .then(response => response.json())
+    .then(data => console.log("User info saved:", data))
+    .catch(error => console.error("Error saving user info:", error));
+}
 // Apple configuration
 let apple = {
     x: Math.floor(Math.random() * (canvas.width / box)) * box,
@@ -310,6 +332,22 @@ function submitScore(playerName, snakeLength) {
         console.log("Score submitted successfully:", data);
         loadLeaderboard();
     })
+    .catch(error => console.error("Error submitting score:", error));
+}
+
+function submitScore(snakeLength) {
+    if (!userInfo) {
+        console.error("User is not signed in.");
+        return;
+    }
+
+    fetch("/submit-score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: userInfo.name, userId: userInfo.userId, score: snakeLength })
+    })
+    .then(response => response.json())
+    .then(data => console.log("Score submitted successfully:", data))
     .catch(error => console.error("Error submitting score:", error));
 }
 
